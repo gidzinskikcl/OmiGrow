@@ -1,0 +1,72 @@
+2025-11-19 21:40:13.486640: I metal_plugin/src/device/metal_device.cc:1154] Metal device set to: Apple M2
+2025-11-19 21:40:13.486837: I metal_plugin/src/device/metal_device.cc:296] systemMemory: 8.00 GB
+2025-11-19 21:40:13.486857: I metal_plugin/src/device/metal_device.cc:313] maxCacheSize: 2.67 GB
+2025-11-19 21:40:13.487404: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:305] Could not identify NUMA node of platform GPU ID 0, defaulting to 0. Your kernel may not have been built with NUMA support.
+2025-11-19 21:40:13.487419: I tensorflow/core/common_runtime/pluggable_device/pluggable_device_factory.cc:271] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 0 MB memory) -> physical PluggableDevice (device: 0, name: METAL, pci bus id: <undefined>)
+Total valid configs: 20
+Total model fits:    100 (configs × folds)
+
+=== Config 1/20: {'dropout': 0.2, 'hidden_layers': 1, 'kernel_constraint': None, 'learning_rate': 0.0005, 'neurons': 50, 'optimizer': 'adam'} ===
+  [Fit 1/100] Config 1/20, Fold 1/5
+Epoch 1/300
+2025-11-19 21:40:13.972802: I tensorflow/core/grappler/optimizers/custom_graph_optimizer_registry.cc:117] Plugin optimizer for device_type GPU is enabled.
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m1s[0m 669ms/step - loss: 2.1152 - mean_absolute_error: 0.7186[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 43ms/step - loss: 2.4602 - mean_absolute_error: 0.8910 [1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m1s[0m 106ms/step - loss: 2.6512 - mean_absolute_error: 0.9621 - val_loss: 0.5814 - val_mean_absolute_error: 0.4862
+Epoch 2/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 19ms/step - loss: 1.3568 - mean_absolute_error: 0.6495[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 28ms/step - loss: 1.6543 - mean_absolute_error: 0.7253 - val_loss: 0.7285 - val_mean_absolute_error: 0.5162
+Epoch 3/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 18ms/step - loss: 1.4501 - mean_absolute_error: 0.6803[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 25ms/step - loss: 1.1539 - mean_absolute_error: 0.5881 - val_loss: 0.8344 - val_mean_absolute_error: 0.5781
+Epoch 4/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 17ms/step - loss: 0.7052 - mean_absolute_error: 0.5527[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 24ms/step - loss: 0.8135 - mean_absolute_error: 0.5517 - val_loss: 0.5840 - val_mean_absolute_error: 0.3604
+Epoch 5/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 18ms/step - loss: 0.7353 - mean_absolute_error: 0.4744[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 24ms/step - loss: 0.8406 - mean_absolute_error: 0.5037 - val_loss: 0.7830 - val_mean_absolute_error: 0.4526
+Epoch 6/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 18ms/step - loss: 1.7443 - mean_absolute_error: 0.5716[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 23ms/step - loss: 1.1816 - mean_absolute_error: 0.5318 - val_loss: 1.0192 - val_mean_absolute_error: 0.4195
+Epoch 7/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 18ms/step - loss: 0.4083 - mean_absolute_error: 0.3925[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 24ms/step - loss: 0.7123 - mean_absolute_error: 0.4747 - val_loss: 1.6101 - val_mean_absolute_error: 0.4860
+Epoch 8/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 18ms/step - loss: 0.3995 - mean_absolute_error: 0.3950[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 25ms/step - loss: 0.9270 - mean_absolute_error: 0.4492 - val_loss: 2.2185 - val_mean_absolute_error: 0.5355
+Epoch 9/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 18ms/step - loss: 0.3395 - mean_absolute_error: 0.3951[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 23ms/step - loss: 0.6967 - mean_absolute_error: 0.4371 - val_loss: 2.6461 - val_mean_absolute_error: 0.5370
+Epoch 10/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 18ms/step - loss: 0.4785 - mean_absolute_error: 0.4199[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 23ms/step - loss: 0.5122 - mean_absolute_error: 0.4233 - val_loss: 2.9974 - val_mean_absolute_error: 0.5451
+Epoch 11/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 17ms/step - loss: 0.8260 - mean_absolute_error: 0.4196[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 23ms/step - loss: 0.7077 - mean_absolute_error: 0.4235 - val_loss: 3.0082 - val_mean_absolute_error: 0.5582
+Epoch 12/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 17ms/step - loss: 0.4244 - mean_absolute_error: 0.3854[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 23ms/step - loss: 0.6431 - mean_absolute_error: 0.4244 - val_loss: 3.0195 - val_mean_absolute_error: 0.5422
+Epoch 13/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 17ms/step - loss: 1.0643 - mean_absolute_error: 0.4500[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 24ms/step - loss: 0.7294 - mean_absolute_error: 0.4181 - val_loss: 3.1101 - val_mean_absolute_error: 0.5626
+Epoch 14/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 17ms/step - loss: 0.6084 - mean_absolute_error: 0.4118[1m3/3[0m [32m━━━━━━━━━━━━━━━━━━━━[0m[37m[0m [1m0s[0m 28ms/step - loss: 0.5697 - mean_absolute_error: 0.3881 - val_loss: 3.2493 - val_mean_absolute_error: 0.5844
+Epoch 15/300
+[1m1/3[0m [32m━━━━━━[0m[37m━━━━━━━━━━━━━━[0m [1m0s[0m 18ms/step - loss: 0.3376 - mean_absolute_error: 0.3494Traceback (most recent call last):
+  File "/Users/piotrgidzinski/Playground/OmiGrow/scripts/run_tuning_S.py", line 134, in <module>
+    main()
+  File "/Users/piotrgidzinski/Playground/OmiGrow/scripts/run_tuning_S.py", line 112, in main
+    results_df = tune(
+  File "/Users/piotrgidzinski/Playground/OmiGrow/training/tune_single_view.py", line 110, in tune
+    model.fit(
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/keras/src/utils/traceback_utils.py", line 117, in error_handler
+    return fn(*args, **kwargs)
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/keras/src/backend/tensorflow/trainer.py", line 399, in fit
+    logs = self.train_function(iterator)
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/keras/src/backend/tensorflow/trainer.py", line 241, in function
+    opt_outputs = multi_step_on_iterator(iterator)
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/util/traceback_utils.py", line 150, in error_handler
+    return fn(*args, **kwargs)
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/eager/polymorphic_function/polymorphic_function.py", line 833, in __call__
+    result = self._call(*args, **kwds)
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/eager/polymorphic_function/polymorphic_function.py", line 878, in _call
+    results = tracing_compilation.call_function(
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/eager/polymorphic_function/tracing_compilation.py", line 139, in call_function
+    return function._call_flat(  # pylint: disable=protected-access
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/eager/polymorphic_function/concrete_function.py", line 1322, in _call_flat
+    return self._inference_function.call_preflattened(args)
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/eager/polymorphic_function/atomic_function.py", line 216, in call_preflattened
+    flat_outputs = self.call_flat(*args)
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/eager/polymorphic_function/atomic_function.py", line 251, in call_flat
+    outputs = self._bound_context.call_function(
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/eager/context.py", line 1500, in call_function
+    outputs = execute.execute(
+  File "/Users/piotrgidzinski/Playground/OmiGrow/omigrow_env/lib/python3.10/site-packages/tensorflow/python/eager/execute.py", line 53, in quick_execute
+    tensors = pywrap_tfe.TFE_Py_Execute(ctx._handle, device_name, op_name,
+KeyboardInterrupt

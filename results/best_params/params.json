@@ -1,0 +1,26 @@
+{
+    "S1_expr": {
+        "hidden_layers": 2,
+        "neurons": 100,
+        "learning_rate": 0.005,
+        "optimizer": "adam",
+        "dropout": 0.4,
+        "kernel_constraint": null 
+    },
+    "S2_prot": {
+        "hidden_layers": 2,
+        "neurons": 200,
+        "learning_rate": 0.005,
+        "optimizer": "adam",
+        "dropout": 0.4,
+        "kernel_constraint": null 
+    },
+    "S3_flux": {
+        "hidden_layers": 2,
+        "neurons": 50,
+        "learning_rate": 0.005,
+        "optimizer": "adam",
+        "dropout": 0.4,
+        "kernel_constraint": 3
+    }
+}
