@@ -1,8 +1,6 @@
-# models/single_view.py
 import tensorflow as tf
 from tensorflow.keras import Model, Input
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.constraints import max_norm
 
 
 def build(
@@ -12,10 +10,8 @@ def build(
     learning_rate: float,
     optimizer_name: str,
     dropout: float,
-    kernel_constraint,
+    weight_decay: float,
 ):
-    # kernel constraint
-    constraint = max_norm(kernel_constraint) if kernel_constraint is not None else None
 
     inputs = Input(shape=(input_dim,), name="input")
     x = inputs
@@ -24,7 +20,6 @@ def build(
         x = Dense(
             neurons,
             activation="relu",
-            kernel_constraint=constraint,
             name=f"hidden_{i+1}",
         )(x)
         x = Dropout(dropout, name=f"dropout_{i+1}")(x)
@@ -33,12 +28,13 @@ def build(
 
     model = Model(inputs=inputs, outputs=outputs, name="single_view_mlp")
 
-    if optimizer_name.lower() == "adam":
-        opt = tf.keras.optimizers.Adam(
+    if optimizer_name.lower() == "adamw":
+        opt = tf.keras.optimizers.AdamW(
             learning_rate=learning_rate,
+            weight_decay=weight_decay,
         )
-    else:  # "sgd"
-        opt = tf.keras.optimizers.SGD(learning_rate=learning_rate, momentum=0.9)
+    else:
+        raise ValueError(f"Unsupported optimiser: {optimizer_name}")
 
     model.compile(
         loss="mean_squared_error",

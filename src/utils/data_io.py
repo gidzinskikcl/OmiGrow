@@ -7,7 +7,7 @@ DATA_DIR = "data/processed"
 
 X_EXPR_FILE = "X_expr.csv"
 X_PROT_FILE = "X_prot.csv"
-X_FLUX_FILE = "X_flux.csv"
+# X_FLUX_FILE = "X_flux.csv"
 Y_FILE = "y_duibhir.csv"  # growth rates measured in SC medium - used in Culley’s MMANN
 # Y_FILE = "y_messner.csv" # growth rates measured in SM medium - from Messner et al.
 
@@ -27,9 +27,9 @@ def load_proteomics():
     return pd.read_csv(path, index_col=0).values
 
 
-def load_flux():
-    path = os.path.join(DATA_DIR, X_FLUX_FILE)
-    return pd.read_csv(path, index_col=0).values
+# def load_flux():
+#     path = os.path.join(DATA_DIR, X_FLUX_FILE)
+#     return pd.read_csv(path, index_col=0).values
 
 
 def load_target():
@@ -41,7 +41,7 @@ def load_test_indices():
     return pd.read_csv(TEST_IDX_FILE, header=None).iloc[:, 0].values.astype(int)
 
 
-def load_train_indices():
+def load_trainval_indices():
     return pd.read_csv(TRAIN_IDX_FILE, header=None).iloc[:, 0].values.astype(int)
 
 
@@ -51,8 +51,8 @@ def get_loader_for_modality(modality: str):
         return load_expression
     elif modality in ("prot", "proteomics"):
         return load_proteomics
-    elif modality == "flux":
-        return load_flux
+    # elif modality == "flux":
+    #     return load_flux
     else:
         raise ValueError(f"Unknown modality: {modality}")
 
