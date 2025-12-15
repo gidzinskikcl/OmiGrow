@@ -31,6 +31,7 @@ from utils.data_io import (
 
 from training.middle_fusion_training import train
 from utils.scaler import standardise
+from utils import train_mode
 
 
 # Fixed, published seeds for reproducibility
@@ -127,6 +128,7 @@ def main():
     modality_2_params_path = args.modality_2_params_path
     results_root = args.results_root
     params_path = args.params_path
+    mode = train_mode.get_train_mode(model_id=model_id)
     # --------------------------------------------------------
     # Load data
     # --------------------------------------------------------
@@ -145,7 +147,6 @@ def main():
     best_params = load_parameters(params_path)
     print("Using best hyperparameters from JSON:")
     print(best_params)
-    train_encoders = bool(best_params.get("train_encoders", False))
     # --------------------------------------------------------
     # Standardise X using train indices only
     # --------------------------------------------------------
@@ -182,12 +183,12 @@ def main():
             trainval_idx=trainval_idx,
             test_idx=test_idx,
             best_params=best_params,
-            weights_1_path=weights_1_path,
-            weights_2_path=weights_2_path,
-            params_1=X1_params,
-            params_2=X2_params,
+            X1_weights_path=weights_1_path,
+            X2_weights_path=weights_2_path,
+            X1_params=X1_params,
+            X2_params=X2_params,
             max_epochs=300,
-            trainable=train_encoders,
+            train_mode=mode,
         )
 
         metrics_with_seed = dict(metrics)
@@ -202,16 +203,13 @@ def main():
     # --------------------------------------------------------
     # Save metrics and weights
     # --------------------------------------------------------
-    trainable_str = "_finetuned" if train_encoders else ""
     metrics_df = pd.DataFrame(all_metrics)
-    metrics_csv_path = os.path.join(
-        output_dir, f"test_metrics_seeds{trainable_str}.csv"
-    )
+    metrics_csv_path = os.path.join(output_dir, f"test_metrics_seeds.csv")
     metrics_df.to_csv(metrics_csv_path, index=False)
     print("Saved test metrics to:", metrics_csv_path)
 
     summary = metrics_df.drop(columns=["seed"]).agg(["mean", "std"])
-    summary_path = os.path.join(output_dir, f"test_metrics_summary{trainable_str}.csv")
+    summary_path = os.path.join(output_dir, f"test_metrics_summary.csv")
     summary.to_csv(summary_path)
     print("Saved summary (mean/std) to:", summary_path)
 
@@ -239,12 +237,12 @@ def main():
         params_1=X1_params,
         params_2=X2_params,
         max_epochs=300,
-        trainable=train_encoders,
+        train_mode=mode,
     )
 
     # Save final metrics
     final_metrics_path = os.path.join(
-        output_dir, f"{best_seed}_final_test_metrics{trainable_str}.json"
+        output_dir, f"{best_seed}_final_test_metrics.json"
     )
     pd.Series(final_metrics | {"seed": best_seed}).to_json(final_metrics_path)
     print("Saved final test metrics to:", final_metrics_path)
@@ -252,7 +250,7 @@ def main():
     # Save final training history
     history_df = pd.DataFrame(final_history.history)
     history_csv_path = os.path.join(
-        output_dir, f"{best_seed}_final_training_history{trainable_str}_.csv"
+        output_dir, f"{best_seed}_final_training_history.csv"
     )
     history_df.to_csv(history_csv_path, index=False)
     print("Saved final training history to:", history_csv_path)
@@ -261,7 +259,7 @@ def main():
     os.makedirs("weights", exist_ok=True)
     weights_path = os.path.join(
         "weights",
-        f"{model_id}_{modality_1}_{modality_2}{trainable_str}_{best_seed}.weights.h5",
+        f"{model_id}_{modality_1}_{modality_2}_{best_seed}.weights.h5",
     )
     final_model.save_weights(weights_path)
     print("Saved model weights to:", weights_path)

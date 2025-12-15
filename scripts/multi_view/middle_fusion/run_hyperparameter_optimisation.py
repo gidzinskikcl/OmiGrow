@@ -4,7 +4,6 @@ import os
 import sys
 import optuna
 
-
 # Go up four levels: run_dual_view_early_fusion_tuning.py
 # -> middle_fusion -> multi_view -> scripts -> project_root
 ROOT = os.path.dirname(
@@ -23,6 +22,7 @@ from utils.data_io import (
 )
 from training.middle_fusion_tuning import make_objective
 from utils.scaler import standardise
+from utils import train_mode
 
 
 def check_dimensions(X1, X2, y):
@@ -116,11 +116,6 @@ def main():
         default=300,
         help="Max epochs per training run.",
     )
-    parser.add_argument(
-        "--trainable",
-        action="store_true",
-        help="If set, fine-tune encoders; otherwise keep them frozen.",
-    )
 
     args = parser.parse_args()
     model_id = args.model_id
@@ -134,7 +129,7 @@ def main():
     n_trials = args.n_trials
     n_splits = args.n_splits
     max_epochs = args.max_epochs
-    trainable = args.trainable
+    mode = train_mode.get_train_mode(model_id=model_id)
     # --------------------------------------------------------
     # 1. Load data
     # --------------------------------------------------------
@@ -180,7 +175,7 @@ def main():
         trainval_idx,
         n_splits,
         max_epochs,
-        trainable,
+        mode,
     )
 
     study.optimize(objective, n_trials=n_trials)
@@ -189,18 +184,17 @@ def main():
     # --------------------------------------------------------
     # All trials as a CSV (similar to your old tuning_results_*.csv)
     trials_df = study.trials_dataframe()
-    trainable_str = "_finetuned" if trainable else ""
-    trials_csv = os.path.join(output_dir, f"optuna_trials{trainable_str}.csv")
+    trials_csv = os.path.join(output_dir, f"optuna_trials.csv")
     trials_df.to_csv(trials_csv, index=False)
 
     # Best params as JSON
-    best_params_with_flag = study.best_params | {"train_encoders": trainable}
-    best_params_path = os.path.join(output_dir, f"best_params{trainable_str}.json")
+    best_params_with_flag = study.best_params
+    best_params_path = os.path.join(output_dir, f"best_params.json")
     with open(best_params_path, "w") as f:
         json.dump(best_params_with_flag, f, indent=2)
 
     # Best value (e.g., RMSE) as a small text file
-    best_value_path = os.path.join(output_dir, f"best_value{trainable_str}.txt")
+    best_value_path = os.path.join(output_dir, f"best_value.txt")
     with open(best_value_path, "w") as f:
         f.write(str(study.best_value))
 

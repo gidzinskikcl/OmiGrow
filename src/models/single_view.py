@@ -11,22 +11,24 @@ def build(
     optimizer_name: str,
     dropout: float,
     weight_decay: float,
+    name: str = "single_view_mlp",
 ):
 
-    inputs = Input(shape=(input_dim,), name="input")
+    # Use the model name as a prefix for layer names to avoid clashes
+    inputs = Input(shape=(input_dim,), name=f"{name}_input")
     x = inputs
 
     for i in range(hidden_layers):
         x = Dense(
             neurons,
             activation="relu",
-            name=f"hidden_{i+1}",
+            name=f"{name}_hidden_{i+1}",
         )(x)
-        x = Dropout(dropout, name=f"dropout_{i+1}")(x)
+        x = Dropout(dropout, name=f"{name}_dropout_{i+1}")(x)
 
-    outputs = Dense(1, activation="linear", name="output")(x)
+    outputs = Dense(1, activation="linear", name=f"{name}_output")(x)
 
-    model = Model(inputs=inputs, outputs=outputs, name="single_view_mlp")
+    model = Model(inputs=inputs, outputs=outputs, name=name)
 
     if optimizer_name.lower() == "adamw":
         opt = tf.keras.optimizers.AdamW(

@@ -7,7 +7,8 @@ from scipy.stats import pearsonr
 import numpy as np
 from tensorflow.keras.callbacks import EarlyStopping, TerminateOnNaN
 
-from models import encoders, middle_fusion
+from models import encoders, middle_fusion, middle_fusion_attention
+from utils import train_mode as mode
 
 
 def train(
@@ -17,11 +18,11 @@ def train(
     trainval_idx,
     test_idx,
     best_params,
-    weights_1_path,
-    weights_2_path,
-    params_1,
-    params_2,
-    trainable: bool = False,
+    X1_weights_path,
+    X2_weights_path,
+    X1_params,
+    X2_params,
+    train_mode: mode.EncoderTrainMode,
     max_epochs=300,
 ):
     # Split data
@@ -32,32 +33,91 @@ def train(
     X2_test = X2[test_idx]
     y_test = y[test_idx]
 
-    encoder_1 = encoders.load_pretrained_encoder(
-        input_dim=X1.shape[1],
-        weights_path=weights_1_path,
-        params=params_1,
-        trainable=trainable,
-    )
-    encoder_2 = encoders.load_pretrained_encoder(
-        input_dim=X2.shape[1],
-        weights_path=weights_2_path,
-        params=params_2,
-        trainable=trainable,
-    )
+    if train_mode == mode.EncoderTrainMode.TRAINED:
+        # MF0: random initialisation
+        X1_encoder = encoders.build(
+            input_dim=X1.shape[1],
+            hidden_layers=X1_params["n_layers"],
+            neurons=X1_params["neurons"],
+            learning_rate=X1_params["learning_rate"],
+            optimizer_name="adamW",
+            dropout=X1_params["dropout"],
+            weight_decay=X1_params["weight_decay"],
+            name="expr_encoder",
+        )
+        X2_encoder = encoders.build(
+            input_dim=X2.shape[1],
+            hidden_layers=X2_params["n_layers"],
+            neurons=X2_params["neurons"],
+            learning_rate=X2_params["learning_rate"],
+            optimizer_name="adamW",
+            dropout=X2_params["dropout"],
+            weight_decay=X2_params["weight_decay"],
+            name="prot_encoder",
+        )
 
-    # Build model with best hyperparameters
-    model = middle_fusion.build(
-        input_1_dim=X1_test.shape[1],
-        input_2_dim=X2_test.shape[1],
-        encoder_1=encoder_1,
-        encoder_2=encoder_2,
-        hidden_layers=best_params["n_layers"],
-        neurons=best_params["neurons"],
-        learning_rate=best_params["learning_rate"],
-        optimizer_name="adamW",
-        dropout=best_params["dropout"],
-        weight_decay=best_params["weight_decay"],
-    )
+    elif (
+        train_mode == mode.EncoderTrainMode.FROZEN
+        or train_mode == mode.EncoderTrainMode.ATTENTION
+    ):
+        # MF1: pretrained but frozen
+        X1_encoder = encoders.load_pretrained_encoder(
+            input_dim=X1.shape[1],
+            weights_path=X1_weights_path,
+            params=X1_params,
+            trainable=False,
+        )
+        X2_encoder = encoders.load_pretrained_encoder(
+            input_dim=X2.shape[1],
+            weights_path=X2_weights_path,
+            params=X2_params,
+            trainable=False,
+        )
+
+    elif train_mode == mode.EncoderTrainMode.FINETUNE:
+        # MF2: pretrained and fine-tuned
+        X1_encoder = encoders.load_pretrained_encoder(
+            input_dim=X1.shape[1],
+            weights_path=X1_weights_path,
+            params=X1_params,
+            trainable=True,
+        )
+        X2_encoder = encoders.load_pretrained_encoder(
+            input_dim=X2.shape[1],
+            weights_path=X2_weights_path,
+            params=X2_params,
+            trainable=True,
+        )
+    else:
+        raise ValueError(f"Unsupported train_mode: {train_mode}")
+
+    if train_mode == mode.EncoderTrainMode.ATTENTION:
+        model = middle_fusion_attention.build(
+            input_1_dim=X1_tv.shape[1],
+            input_2_dim=X2_tv.shape[1],
+            encoder_1=X1_encoder,
+            encoder_2=X2_encoder,
+            hidden_layers=best_params["n_layers"],
+            neurons=best_params["neurons"],
+            learning_rate=best_params["learning_rate"],
+            optimizer_name="adamW",
+            dropout=best_params["dropout"],
+            weight_decay=best_params["weight_decay"],
+            gate_hidden_dim=None,
+        )
+    else:
+        model = middle_fusion.build(
+            input_1_dim=X1_tv.shape[1],
+            input_2_dim=X2_tv.shape[1],
+            encoder_1=X1_encoder,
+            encoder_2=X2_encoder,
+            hidden_layers=best_params["n_layers"],
+            neurons=best_params["neurons"],
+            learning_rate=best_params["learning_rate"],
+            optimizer_name="adamW",
+            dropout=best_params["dropout"],
+            weight_decay=best_params["weight_decay"],
+        )
 
     # Early stopping on validation loss
     es = EarlyStopping(

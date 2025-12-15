@@ -3,6 +3,8 @@ import optuna
 from training.cross_validation import middle_fusion_cv_rmse
 from training.config import build_config_from_trial
 
+from utils import train_mode as mode
+
 
 def evaluate_config(
     X1_scaled,
@@ -14,9 +16,9 @@ def evaluate_config(
     y,
     trainval_idx,
     config: dict,
+    train_mode: mode.EncoderTrainMode,
     n_splits: int = 5,
     max_epochs: int = 300,
-    trainable: bool = False,
 ):
     """
     Run CV for a single hyperparameter config and return mean RMSE (or your chosen metric).
@@ -33,7 +35,7 @@ def evaluate_config(
         config=config,
         n_splits=n_splits,
         max_epochs=max_epochs,
-        trainable=trainable,
+        train_mode=train_mode,
     )
     return mean_rmse
 
@@ -49,7 +51,7 @@ def make_objective(
     trainval_idx,
     n_splits,
     max_epochs,
-    trainable: bool = False,
+    train_mode: mode.EncoderTrainMode,
 ):
     def objective(trial: optuna.Trial) -> float:
         config = build_config_from_trial(trial)
@@ -65,7 +67,7 @@ def make_objective(
             config=config,
             n_splits=n_splits,
             max_epochs=max_epochs,
-            trainable=trainable,
+            train_mode=train_mode,
         )
         trial.set_user_attr("config", config)
         return mean_rmse

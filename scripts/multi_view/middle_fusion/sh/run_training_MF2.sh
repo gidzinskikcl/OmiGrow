@@ -3,7 +3,7 @@ set -e
 
 MODALITY_1="expr"         # expr / prot
 MODALITY_2="prot"         # expr / prot
-MODEL_ID="MF1"         
+MODEL_ID="MF2"         
 RESULTS_ROOT="results"
 
 WEIGHTS_PATH_1="weights/S1_expr_7.weights.h5"

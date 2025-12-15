@@ -27,8 +27,9 @@ def load_pretrained_encoder(
 
     base.load_weights(weights_path)
 
-    last_hidden_name = f"hidden_{params['n_layers']}"
+    last_hidden_name = f"{base.name}_hidden_{params['n_layers']}"
     encoder_output = base.get_layer(last_hidden_name).output
+
     encoder = Model(
         inputs=base.input,
         outputs=encoder_output,

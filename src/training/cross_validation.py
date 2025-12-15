@@ -2,7 +2,10 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error
 import numpy as np
 
-from models import single_view, middle_fusion, encoders
+from models import single_view, middle_fusion, middle_fusion_attention, encoders
+
+from utils import train_mode as mode
+
 
 from tensorflow.keras.callbacks import EarlyStopping, TerminateOnNaN
 from tensorflow.keras import backend as K
@@ -100,10 +103,11 @@ def middle_fusion_cv_rmse(
     y,
     trainval_idx,
     config: dict,
+    train_mode: mode.EncoderTrainMode,
     n_splits: int = 5,
     max_epochs: int = 300,
     random_state: int = 123,
-    trainable: bool = False,
+    # trainable: bool = False,
 ):
     """
     X, y: full dataset (numpy arrays or pandas .values)
@@ -134,32 +138,91 @@ def middle_fusion_cv_rmse(
         X2_val = X2_tv[val_idx_local]
         y_val = y_tv[val_idx_local]
 
-        # Fresh encoders for each fold/config
-        X1_encoder = encoders.load_pretrained_encoder(
-            input_dim=X1_scaled.shape[1],
-            weights_path=X1_weights_path,
-            params=X1_params,
-            trainable=trainable,
-        )
-        X2_encoder = encoders.load_pretrained_encoder(
-            input_dim=X2_scaled.shape[1],
-            weights_path=X2_weights_path,
-            params=X2_params,
-            trainable=trainable,
-        )
+        if train_mode == mode.EncoderTrainMode.TRAINED:
+            # MF0: random initialisation
+            X1_encoder = encoders.build(
+                input_dim=X1_scaled.shape[1],
+                hidden_layers=X1_params["n_layers"],
+                neurons=X1_params["neurons"],
+                learning_rate=X1_params["learning_rate"],
+                optimizer_name="adamW",
+                dropout=X1_params["dropout"],
+                weight_decay=X1_params["weight_decay"],
+                name="expr_encoder",
+            )
+            X2_encoder = encoders.build(
+                input_dim=X2_scaled.shape[1],
+                hidden_layers=X2_params["n_layers"],
+                neurons=X2_params["neurons"],
+                learning_rate=X2_params["learning_rate"],
+                optimizer_name="adamW",
+                dropout=X2_params["dropout"],
+                weight_decay=X2_params["weight_decay"],
+                name="prot_encoder",
+            )
 
-        model = middle_fusion.build(
-            input_1_dim=X1_tv.shape[1],
-            input_2_dim=X2_tv.shape[1],
-            encoder_1=X1_encoder,
-            encoder_2=X2_encoder,
-            hidden_layers=config["n_layers"],
-            neurons=config["neurons"],
-            learning_rate=config["learning_rate"],
-            optimizer_name="adamW",
-            dropout=config["dropout"],
-            weight_decay=config["weight_decay"],
-        )
+        elif (
+            train_mode == mode.EncoderTrainMode.FROZEN
+            or train_mode == mode.EncoderTrainMode.ATTENTION
+        ):
+            # MF1: pretrained but frozen
+            X1_encoder = encoders.load_pretrained_encoder(
+                input_dim=X1_scaled.shape[1],
+                weights_path=X1_weights_path,
+                params=X1_params,
+                trainable=False,
+            )
+            X2_encoder = encoders.load_pretrained_encoder(
+                input_dim=X2_scaled.shape[1],
+                weights_path=X2_weights_path,
+                params=X2_params,
+                trainable=False,
+            )
+
+        elif train_mode == mode.EncoderTrainMode.FINETUNE:
+            # MF2: pretrained and fine-tuned
+            X1_encoder = encoders.load_pretrained_encoder(
+                input_dim=X1_scaled.shape[1],
+                weights_path=X1_weights_path,
+                params=X1_params,
+                trainable=True,
+            )
+            X2_encoder = encoders.load_pretrained_encoder(
+                input_dim=X2_scaled.shape[1],
+                weights_path=X2_weights_path,
+                params=X2_params,
+                trainable=True,
+            )
+        else:
+            raise ValueError(f"Unsupported train_mode: {train_mode}")
+
+        if train_mode == mode.EncoderTrainMode.ATTENTION:
+            model = middle_fusion_attention.build(
+                input_1_dim=X1_tv.shape[1],
+                input_2_dim=X2_tv.shape[1],
+                encoder_1=X1_encoder,
+                encoder_2=X2_encoder,
+                hidden_layers=config["n_layers"],
+                neurons=config["neurons"],
+                learning_rate=config["learning_rate"],
+                optimizer_name="adamW",
+                dropout=config["dropout"],
+                weight_decay=config["weight_decay"],
+                gate_hidden_dim=None,  # or e.g. 64 if you want a non-trivial gate MLP
+            )
+        else:
+            model = middle_fusion.build(
+                input_1_dim=X1_tv.shape[1],
+                input_2_dim=X2_tv.shape[1],
+                encoder_1=X1_encoder,
+                encoder_2=X2_encoder,
+                hidden_layers=config["n_layers"],
+                neurons=config["neurons"],
+                learning_rate=config["learning_rate"],
+                optimizer_name="adamW",
+                dropout=config["dropout"],
+                weight_decay=config["weight_decay"],
+            )
 
         es = EarlyStopping(
             monitor="val_loss",
